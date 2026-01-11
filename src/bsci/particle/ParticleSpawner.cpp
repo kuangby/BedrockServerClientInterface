@@ -15,11 +15,11 @@
 #include <mc/util/MolangMemberArray.h>
 #include <mc/util/MolangMemberVariable.h>
 #include <mc/util/MolangScriptArg.h>
-#include <mc/util/MolangVariable.h>
-#include <mc/util/MolangVariableMap.h>
 #include <mc/util/MolangStruct_RGBA.h>
 #include <mc/util/MolangStruct_XY.h>
 #include <mc/util/MolangStruct_XYZ.h>
+#include <mc/util/MolangVariable.h>
+#include <mc/util/MolangVariableMap.h>
 #include <mc/util/MolangVariableSettings.h>
 #include <mc/util/Timer.h>
 #include <mc/world/Minecraft.h>
@@ -27,6 +27,7 @@
 #include <mc/world/level/dimension/Dimension.h>
 
 #include <parallel_hashmap/phmap.h>
+
 
 template <class K, class V, size_t N = 4, class M = std::shared_mutex>
 using ph_flat_hash_map = phmap::parallel_flat_hash_map<
@@ -138,6 +139,7 @@ ParticleSpawner::ParticleSpawner() : impl(std::make_unique<Impl>()) {
     impl->id    = list.size();
     list.push_back(this);
 }
+
 ParticleSpawner::~ParticleSpawner() {
     std::lock_guard l{listMutex};
     list.back()->impl->id = impl->id;
@@ -227,7 +229,7 @@ GeometryGroup::GeoId ParticleSpawner::merge(std::span<GeoId> ids) {
     std::vector<GeoId> res;
     res.reserve(ids.size());
     for (auto const& sid : ids) {
-        if (!impl->geoGroup.erase_if(sid, [this, &res](auto&& iter) {
+        if (!impl->geoGroup.erase_if(sid, [&res](auto&& iter) {
                 res.append_range(std::move(iter.second));
                 return true;
             })) {
